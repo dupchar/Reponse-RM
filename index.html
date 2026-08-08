@@ -457,9 +457,13 @@
 
     fetch(SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
       body: data
-    }).then(function () {
+    }).then(function (response) {
+      return response.json();
+    }).then(function (json) {
+      if (!json || json.result !== 'success') {
+        throw new Error('unexpected response');
+      }
       Array.prototype.forEach.call(form.elements, function (el) {
         el.disabled = true;
       });
