@@ -317,11 +317,27 @@
   }
 
   .fallback {
-    margin-top: -0.75rem;
+    margin-top: 1.5rem;
   }
 
   .fallback a {
     color: var(--gold-strong);
+  }
+
+  #form-status {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+  }
+
+  #form-status.error {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--gold-strong);
+  }
+
+  .submit[disabled] {
+    opacity: 0.65;
+    cursor: default;
   }
 
   @media (max-width: 480px) {
@@ -412,9 +428,11 @@
       </div>
 
       <button type="submit" class="submit">Envoyer ma réponse</button>
-      <p class="hint">Votre messagerie va s'ouvrir avec la réponse pré-remplie — il ne restera qu'à cliquer sur Envoyer.</p>
-      <p class="hint fallback">En cas de souci, écrivez-nous directement à<br /><a href="mailto:mariage.romain.margaux@gmail.com">mariage.romain.margaux@gmail.com</a></p>
     </form>
+
+    <p id="form-status" class="hint" role="status" hidden></p>
+
+    <p class="hint fallback">En cas de souci, écrivez-nous directement à<br /><a href="mailto:mariage.romain.margaux@gmail.com">mariage.romain.margaux@gmail.com</a></p>
   </section>
 
   <footer>Avec toute notre affection, Romain &amp; Margaux</footer>
@@ -422,29 +440,36 @@
 </div>
 
 <script>
-  document.getElementById('rsvp-form').addEventListener('submit', function (e) {
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbdgCEhJhDQmj9S0c9JIRtyGKiqYaaeD5SsuJdbEvxhZIBqbQxH1Z2OmAsIIoszz-mkQ/exec';
+
+  var form = document.getElementById('rsvp-form');
+  var statusEl = document.getElementById('form-status');
+  var submitBtn = form.querySelector('.submit');
+
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-    var data = new FormData(e.target);
-    var name = data.get('name') || '';
-    var attending = data.get('attending') || '';
-    var guests = data.get('guests') || '1';
-    var diet = data.get('diet') || 'Aucune';
-    var message = data.get('message') || '';
+    var data = new FormData(form);
 
-    var body = [
-      'Nom : ' + name,
-      'Présence : ' + attending,
-      'Nombre de personnes : ' + guests,
-      'Allergies / régime : ' + diet,
-      'Message : ' + (message || '—')
-    ].join('\n');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi…';
+    statusEl.hidden = true;
+    statusEl.classList.remove('error');
 
-    var subject = 'RSVP mariage — ' + name;
-    var mailto = 'mailto:mariage.romain.margaux@gmail.com'
-      + '?subject=' + encodeURIComponent(subject)
-      + '&body=' + encodeURIComponent(body);
-
-    window.location.href = mailto;
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: data
+    }).then(function () {
+      form.hidden = true;
+      statusEl.hidden = false;
+      statusEl.textContent = 'Merci ! Votre réponse a bien été enregistrée.';
+    }).catch(function () {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Envoyer ma réponse';
+      statusEl.hidden = false;
+      statusEl.classList.add('error');
+      statusEl.textContent = "Une erreur est survenue lors de l'envoi. Merci de nous écrire directement à l'adresse ci-dessous.";
+    });
   });
 </script>
 
