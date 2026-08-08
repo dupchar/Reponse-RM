@@ -460,7 +460,10 @@
       mode: 'no-cors',
       body: data
     }).then(function () {
-      form.hidden = true;
+      Array.prototype.forEach.call(form.elements, function (el) {
+        el.disabled = true;
+      });
+      submitBtn.textContent = 'Envoyé';
       statusEl.hidden = false;
       statusEl.textContent = 'Merci ! Votre réponse a bien été enregistrée.';
     }).catch(function () {
