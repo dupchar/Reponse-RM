@@ -394,11 +394,6 @@
 
     <form id="rsvp-form">
       <div class="field">
-        <label for="name">Nom complet</label>
-        <input type="text" id="name" name="name" autocomplete="name" required />
-      </div>
-
-      <div class="field">
         <label id="attending-label">Serez-vous présent·e ?</label>
         <div class="radio-group" role="radiogroup" aria-labelledby="attending-label">
           <label class="radio-pill">
@@ -414,13 +409,10 @@
 
       <div class="field">
         <label for="guests">Nombre de personnes (vous inclus·e)</label>
-        <input type="number" id="guests" name="guests" min="1" value="1" />
+        <input type="number" id="guests" name="guests" min="1" max="15" value="1" />
       </div>
 
-      <div class="field">
-        <label for="diet">Allergies ou régime alimentaire</label>
-        <textarea id="diet" name="diet" placeholder="Aucune, ou précisez ici"></textarea>
-      </div>
+      <div id="guests-fields"></div>
 
       <div class="field">
         <label for="message">Un mot pour Romain &amp; Margaux</label>
@@ -445,6 +437,65 @@
   var form = document.getElementById('rsvp-form');
   var statusEl = document.getElementById('form-status');
   var submitBtn = form.querySelector('.submit');
+  var guestsInput = document.getElementById('guests');
+  var guestsFieldsEl = document.getElementById('guests-fields');
+
+  function currentGuestValues() {
+    var values = [];
+    var nameInputs = guestsFieldsEl.querySelectorAll('input[id^="guest-name-"]');
+    for (var i = 0; i < nameInputs.length; i++) {
+      var dietInput = document.getElementById('guest-diet-' + (i + 1));
+      values.push({ name: nameInputs[i].value, diet: dietInput ? dietInput.value : '' });
+    }
+    return values;
+  }
+
+  function renderGuestFields(count) {
+    var previous = currentGuestValues();
+    guestsFieldsEl.innerHTML = '';
+
+    for (var i = 1; i <= count; i++) {
+      var prev = previous[i - 1] || { name: '', diet: '' };
+
+      var nameField = document.createElement('div');
+      nameField.className = 'field';
+      var nameLabel = document.createElement('label');
+      nameLabel.setAttribute('for', 'guest-name-' + i);
+      nameLabel.textContent = count > 1 ? 'Invité ' + i + ' — Nom complet' : 'Nom complet';
+      var nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.id = 'guest-name-' + i;
+      nameInput.name = 'guest-name-' + i;
+      nameInput.required = true;
+      nameInput.value = prev.name;
+      if (i === 1) nameInput.autocomplete = 'name';
+      nameField.appendChild(nameLabel);
+      nameField.appendChild(nameInput);
+
+      var dietField = document.createElement('div');
+      dietField.className = 'field';
+      var dietLabel = document.createElement('label');
+      dietLabel.setAttribute('for', 'guest-diet-' + i);
+      dietLabel.textContent = count > 1 ? 'Invité ' + i + ' — Allergies ou régime alimentaire' : 'Allergies ou régime alimentaire';
+      var dietInput = document.createElement('textarea');
+      dietInput.id = 'guest-diet-' + i;
+      dietInput.name = 'guest-diet-' + i;
+      dietInput.placeholder = 'Aucune, ou précisez ici';
+      dietInput.value = prev.diet;
+      dietField.appendChild(dietLabel);
+      dietField.appendChild(dietInput);
+
+      guestsFieldsEl.appendChild(nameField);
+      guestsFieldsEl.appendChild(dietField);
+    }
+  }
+
+  guestsInput.addEventListener('input', function () {
+    var count = Math.max(1, Math.min(15, parseInt(guestsInput.value, 10) || 1));
+    renderGuestFields(count);
+  });
+
+  renderGuestFields(parseInt(guestsInput.value, 10) || 1);
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
