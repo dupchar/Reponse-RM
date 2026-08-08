@@ -473,7 +473,7 @@
       nameField.appendChild(nameInput);
 
       var dietField = document.createElement('div');
-      dietField.className = 'field';
+      dietField.className = 'field diet-field';
       var dietLabel = document.createElement('label');
       dietLabel.setAttribute('for', 'guest-diet-' + i);
       dietLabel.textContent = count > 1 ? 'Invité ' + i + ' — Allergies ou régime alimentaire' : 'Allergies ou régime alimentaire';
@@ -488,11 +488,26 @@
       guestsFieldsEl.appendChild(nameField);
       guestsFieldsEl.appendChild(dietField);
     }
+
+    applyDietVisibility();
+  }
+
+  function applyDietVisibility() {
+    var notAttending = form.querySelector('input[name="attending"]:checked') &&
+      form.querySelector('input[name="attending"]:checked').value.indexOf('Non') === 0;
+    var dietFields = guestsFieldsEl.querySelectorAll('.diet-field');
+    for (var i = 0; i < dietFields.length; i++) {
+      dietFields[i].hidden = notAttending;
+    }
   }
 
   guestsInput.addEventListener('input', function () {
     var count = Math.max(1, Math.min(15, parseInt(guestsInput.value, 10) || 1));
     renderGuestFields(count);
+  });
+
+  Array.prototype.forEach.call(form.querySelectorAll('input[name="attending"]'), function (radio) {
+    radio.addEventListener('change', applyDietVisibility);
   });
 
   renderGuestFields(parseInt(guestsInput.value, 10) || 1);
