@@ -18,6 +18,7 @@
     --gold: #9C7A3C;
     --gold-strong: #85652D;
     --green: #445939;
+    --red: #8C3A2B;
     --line: #D8CBB0;
     --focus: #85652D;
 
@@ -35,6 +36,7 @@
       --gold: #D8B364;
       --gold-strong: #E4C077;
       --green: #8CA875;
+      --red: #C77B67;
       --line: #3A3E2F;
       --focus: #D8B364;
     }
@@ -49,6 +51,7 @@
     --gold: #D8B364;
     --gold-strong: #E4C077;
     --green: #8CA875;
+    --red: #C77B67;
     --line: #3A3E2F;
     --focus: #D8B364;
   }
@@ -213,6 +216,10 @@
     gap: 0.5rem;
   }
 
+  .field[hidden] {
+    display: none;
+  }
+
   label {
     font-size: 0.72rem;
     letter-spacing: 0.14em;
@@ -279,6 +286,12 @@
   .radio-pill input:checked + span {
     background: var(--green);
     border-color: var(--green);
+    color: var(--surface);
+  }
+
+  .radio-pill--no input:checked + span {
+    background: var(--red);
+    border-color: var(--red);
     color: var(--surface);
   }
 
@@ -400,7 +413,7 @@
             <input type="radio" name="attending" value="Oui, je serai présent·e" required />
             <span>Oui</span>
           </label>
-          <label class="radio-pill">
+          <label class="radio-pill radio-pill--no">
             <input type="radio" name="attending" value="Non, je ne pourrai pas venir" required />
             <span>Non</span>
           </label>
